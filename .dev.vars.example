@@ -1,0 +1,14 @@
+# Copy to `.dev.vars` for local development (gitignored).
+# These are read by the Cloudflare platform proxy during `npm run dev`
+# and by `wrangler pages dev` during `npm run preview`.
+
+# Resend API key — https://resend.com/api-keys
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
+
+# Where contact submissions are emailed.
+CONTACT_TO=123jcc@gmail.com
+
+# The "from" address. Until you verify a domain in Resend you can use
+# the shared onboarding sender below (deliverability is limited).
+# Once jchen.me is verified, switch to e.g. "Jimmy Chen <hello@jchen.me>".
+CONTACT_FROM=Contact Form <onboarding@resend.dev>

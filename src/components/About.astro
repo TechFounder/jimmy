@@ -1,0 +1,60 @@
+---
+// Modernized from the original site's bio + tech-stack list.
+// First-draft copy — meant to be reviewed/edited.
+const stack = [
+  { group: "Languages", items: ["JavaScript / TypeScript", "Ruby", "HTML & CSS"] },
+  { group: "Frameworks", items: ["Ruby on Rails", "React", "Astro", "Tailwind"] },
+  { group: "Data", items: ["PostgreSQL", "MySQL"] },
+  { group: "Cloud & Ops", items: ["AWS", "Cloudflare", "Git"] },
+  { group: "Practice", items: ["Agile", "Professional Scrum Master I"] },
+];
+---
+
+<section id="about" class="mx-auto max-w-5xl scroll-mt-16 px-5 py-28 sm:px-8 sm:py-40">
+  <p
+    class="text-sm font-medium uppercase tracking-[0.2em] text-accent"
+    data-reveal
+  >
+    About
+  </p>
+
+  <h2
+    class="mt-6 max-w-3xl text-3xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-5xl"
+    data-reveal
+  >
+    A full-stack developer with an entrepreneurial bent — I like turning
+    rough ideas into products people can actually use.
+  </h2>
+
+  <div class="mt-8 grid max-w-3xl gap-6 text-lg leading-relaxed text-ink-soft">
+    <p data-reveal>
+      I started out freelancing on frontends and shipping scrappy MVPs in
+      hackathons, then went deep on full-stack work in healthcare tech. One of
+      those early projects, RubiconMD, was acquired by Teladoc&nbsp;Health —
+      where I work today.
+    </p>
+    <p data-reveal>
+      I care about clean interfaces, responsive design, and code that's a
+      pleasure to maintain. I'm a certified Scrum Master and enjoy the part of
+      the job where engineering meets product.
+    </p>
+  </div>
+
+  <!-- Stack -->
+  <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-hairline)] sm:grid-cols-2 lg:grid-cols-3">
+    {
+      stack.map((col) => (
+        <div class="bg-[var(--color-canvas)] p-6" data-reveal>
+          <h3 class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
+            {col.group}
+          </h3>
+          <ul class="mt-4 space-y-2">
+            {col.items.map((item) => (
+              <li class="text-[15px] text-ink">{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

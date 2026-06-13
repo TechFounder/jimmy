@@ -1,0 +1,54 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
+import Work from "../components/Work.astro";
+import Contact from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout>
+  <Nav />
+  <main>
+    <Hero />
+    <About />
+    <Work />
+    <Contact />
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!reduce) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero: staggered entrance on load.
+    gsap.from("[data-hero-fade]", {
+      y: 24,
+      opacity: 0,
+      duration: 1,
+      ease: "power3.out",
+      stagger: 0.12,
+      delay: 0.1,
+    });
+
+    // Hero: gentle parallax + fade as you scroll past it.
+    gsap.to("[data-hero-parallax]", {
+      yPercent: 18,
+      opacity: 0.35,
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#top",
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+      },
+    });
+  }
+</script>

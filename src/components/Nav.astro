@@ -1,0 +1,67 @@
+---
+// Apple-style sticky, translucent top bar.
+const links = [
+  { label: "About", href: "#about" },
+  { label: "Work", href: "#work" },
+  { label: "Blog", href: "https://blog.jchen.me" },
+  { label: "Contact", href: "#contact" },
+];
+---
+
+<header
+  id="site-nav"
+  class="fixed inset-x-0 top-0 z-50 border-b border-transparent transition-all duration-300"
+>
+  <nav
+    class="mx-auto flex h-12 max-w-5xl items-center justify-between px-5 sm:px-8"
+  >
+    <a
+      href="#top"
+      class="text-[15px] font-semibold tracking-tight text-ink transition-opacity hover:opacity-60"
+    >
+      Jimmy Chen
+    </a>
+
+    <ul class="flex items-center gap-6 sm:gap-8">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="text-[12px] text-ink-soft transition-colors hover:text-ink"
+              {...link.href.startsWith("http")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {}}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<script>
+  // Frost the nav once the user scrolls past the hero fold.
+  const nav = document.getElementById("site-nav");
+  if (nav) {
+    const onScroll = () => {
+      if (window.scrollY > 40) {
+        nav.classList.add(
+          "bg-[var(--color-canvas)]/80",
+          "backdrop-blur-xl",
+          "border-[var(--color-hairline)]",
+        );
+      } else {
+        nav.classList.remove(
+          "bg-[var(--color-canvas)]/80",
+          "backdrop-blur-xl",
+          "border-[var(--color-hairline)]",
+        );
+      }
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+</script>
