@@ -1,0 +1,66 @@
+---
+// Communicates the contract / startup / full-time duality as deliberate
+// range. Draft copy — meant to be tuned to taste.
+const modes = [
+  {
+    label: "Full-time",
+    blurb:
+      "Embedded, long-term work with a product team at scale — what I do day to day, and the kind of role I'm always open to for the right team.",
+    icon: "M3 21h18M5 21V7l8-4v18M19 21V11l-6-3M9 9v.01M9 12v.01M9 15v.01M9 18v.01",
+  },
+  {
+    label: "Contract & freelance",
+    blurb:
+      "Independent, well-scoped projects where I can plug in, ship something solid, and hand it off clean.",
+    icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M9 13h6M9 17h6",
+  },
+  {
+    label: "Startups & advising",
+    blurb:
+      "Early-stage teams that need to move fast, make the right calls, and build something people actually use.",
+    icon: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 8-10c2.5 0 4 1.5 4 4a22 22 0 0 1-10 8zM9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5",
+  },
+];
+---
+
+<section
+  id="work-with-me"
+  class="mx-auto max-w-5xl scroll-mt-24 px-5 py-20 sm:px-8 sm:py-28"
+>
+  <p
+    class="text-sm font-medium uppercase tracking-[0.2em] text-accent-sky"
+    data-reveal
+  >
+    Ways to work together
+  </p>
+  <h2
+    class="mt-6 max-w-2xl text-3xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-5xl"
+    data-reveal
+  >
+    Freelance, startup, or full-time — I've done all three, and I'm
+    <span class="gradient-text">open to the right fit</span>.
+  </h2>
+
+  <div class="mt-14 grid gap-4 md:grid-cols-3">
+    {
+      modes.map((mode, i) => (
+        <div
+          class="glass rounded-2xl p-7 transition-colors duration-300 hover:border-[rgba(56,189,248,0.4)]"
+          data-reveal
+          data-reveal-delay={i + 1}
+        >
+          <div
+            class="flex h-11 w-11 items-center justify-center rounded-xl"
+            style="background: rgba(56,189,248,0.12); color: var(--color-accent-sky);"
+          >
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="1.7">
+              <path d={mode.icon} stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3 class="mt-5 text-lg font-semibold tracking-tight">{mode.label}</h3>
+          <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{mode.blurb}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>

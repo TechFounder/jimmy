@@ -9,7 +9,15 @@ export default defineConfig({
   output: "static",
   adapter: cloudflare({
     platformProxy: { enabled: true },
+    // We use plain <img> tags, so no runtime image optimization is needed.
+    imageService: "passthrough",
   }),
+  // We don't use Astro sessions. Providing a trivial driver stops the
+  // Cloudflare adapter from wiring up (and warning about) a KV "SESSION"
+  // binding we'd otherwise never use.
+  session: {
+    driver: "memory",
+  },
   vite: {
     plugins: [tailwindcss()],
   },
