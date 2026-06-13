@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // import.meta.env for local `astro dev`.
   const env = (locals as any)?.runtime?.env ?? import.meta.env;
   const RESEND_API_KEY = env.RESEND_API_KEY as string | undefined;
-  const CONTACT_TO = (env.CONTACT_TO as string) || "123jcc@gmail.com";
+  const CONTACT_TO = (env.CONTACT_TO as string) || "jccgmail@gmail.com";
   const CONTACT_FROM =
     (env.CONTACT_FROM as string) || "Contact Form <onboarding@resend.dev>";
 

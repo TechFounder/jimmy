@@ -6,7 +6,7 @@
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
 
 # Where contact submissions are emailed.
-CONTACT_TO=123jcc@gmail.com
+CONTACT_TO=jccgmail@gmail.com
 
 # The "from" address. Until you verify a domain in Resend you can use
 # the shared onboarding sender below (deliverability is limited).
