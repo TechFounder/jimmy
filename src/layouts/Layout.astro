@@ -30,9 +30,21 @@ const {
     <meta property="og:image" content="/images/headshot.png" />
     <meta name="twitter:card" content="summary" />
 
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#07080f" />
   </head>
   <body>
+    <!-- Aurora background -->
+    <div class="aurora" data-aurora aria-hidden="true">
+      <span class="b1"></span>
+      <span class="b2"></span>
+      <span class="b3"></span>
+    </div>
+    <div class="aurora-veil" aria-hidden="true"></div>
+
+    <!-- Custom cursor (shown only on fine pointers via JS) -->
+    <div class="cursor-ring" data-cursor-ring aria-hidden="true"></div>
+    <div class="cursor-dot" data-cursor-dot aria-hidden="true"></div>
+
     <slot />
 
     <!-- Scroll-reveal: progressive enhancement, respects reduced motion -->

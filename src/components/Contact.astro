@@ -1,147 +1,37 @@
 ---
-// Contact form. Posts JSON to /api/contact (a Cloudflare function),
-// which emails the submission via Resend.
+// Closing call-to-action. The form itself lives in the pop-out modal
+// (ContactModal.astro); this band just invites a click.
 ---
 
-<section
-  id="contact"
-  class="scroll-mt-16 px-5 py-28 sm:px-8 sm:py-40"
->
-  <div class="mx-auto max-w-xl text-center">
-    <p
-      class="text-sm font-medium uppercase tracking-[0.2em] text-accent"
-      data-reveal
-    >
-      Contact
-    </p>
-    <h2
-      class="mt-6 text-3xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-5xl"
-      data-reveal
-    >
-      Let's get in touch.
-    </h2>
-    <p class="mt-5 text-lg text-ink-soft" data-reveal>
-      Have a project, a question, or just want to say hello? Drop me a note and
-      it'll land straight in my inbox.
-    </p>
-  </div>
-
-  <form
-    id="contact-form"
-    class="mx-auto mt-12 max-w-xl space-y-4"
-    data-reveal
-    novalidate
-  >
-    <!-- Honeypot: bots fill this, humans never see it -->
-    <div class="absolute left-[-9999px]" aria-hidden="true">
-      <label>
-        Leave this field empty
-        <input type="text" name="nickname" tabindex="-1" autocomplete="off" />
-      </label>
-    </div>
-
-    <div class="grid gap-4 sm:grid-cols-2">
-      <input
-        type="text"
-        name="name"
-        required
-        placeholder="Full name"
-        autocomplete="name"
-        class="w-full rounded-xl border border-[var(--color-hairline)] bg-[var(--color-canvas-alt)] px-4 py-3.5 text-[15px] outline-none transition-all placeholder:text-ink-soft focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20"
-      />
-      <input
-        type="email"
-        name="email"
-        required
-        placeholder="Email"
-        autocomplete="email"
-        class="w-full rounded-xl border border-[var(--color-hairline)] bg-[var(--color-canvas-alt)] px-4 py-3.5 text-[15px] outline-none transition-all placeholder:text-ink-soft focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20"
-      />
-    </div>
-
-    <input
-      type="text"
-      name="subject"
-      required
-      placeholder="Subject"
-      class="w-full rounded-xl border border-[var(--color-hairline)] bg-[var(--color-canvas-alt)] px-4 py-3.5 text-[15px] outline-none transition-all placeholder:text-ink-soft focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20"
-    />
-
-    <textarea
-      name="message"
-      required
-      rows="6"
-      placeholder="Message"
-      class="w-full resize-y rounded-xl border border-[var(--color-hairline)] bg-[var(--color-canvas-alt)] px-4 py-3.5 text-[15px] outline-none transition-all placeholder:text-ink-soft focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20"
-    ></textarea>
-
-    <div class="flex items-center justify-between gap-4">
-      <p id="form-status" class="text-sm text-ink-soft" role="status" aria-live="polite"></p>
-      <button
-        type="submit"
-        class="inline-flex items-center justify-center rounded-full bg-accent px-7 py-3 text-[15px] font-medium text-white transition-all hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Send message
-      </button>
-    </div>
-  </form>
-
-  <!-- Success state (hidden until submit) -->
+<section id="contact" class="scroll-mt-24 px-5 py-28 sm:px-8 sm:py-40">
   <div
-    id="form-success"
-    class="mx-auto mt-12 hidden max-w-xl rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-canvas-alt)] p-10 text-center"
+    class="glass relative mx-auto max-w-4xl overflow-hidden rounded-3xl px-8 py-16 text-center sm:py-24"
+    data-reveal
   >
-    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-white">
-      <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current" stroke-width="2.5">
-        <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-0 -z-10"
+      style="background: radial-gradient(60% 80% at 50% 0%, rgba(56,189,248,0.18), transparent 70%);"
+    >
     </div>
-    <h3 class="mt-5 text-xl font-semibold">Thanks for reaching out!</h3>
-    <p class="mt-2 text-ink-soft">
-      Your message is on its way — I'll get back to you soon.
+
+    <h2
+      class="mx-auto max-w-2xl text-4xl font-semibold leading-[1.1] tracking-[-0.02em] sm:text-6xl"
+    >
+      Let's build something <span class="gradient-text">together</span>.
+    </h2>
+    <p class="mx-auto mt-5 max-w-md text-lg text-ink-soft">
+      Have a project, a question, or just want to say hello? Drop me a note —
+      it lands straight in my inbox.
     </p>
+    <button
+      type="button"
+      data-open-modal
+      data-magnetic
+      class="mt-9 rounded-full px-8 py-3.5 text-[15px] font-medium text-white transition-all"
+      style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-indigo)); box-shadow: 0 10px 40px -8px rgba(59,130,246,0.7);"
+    >
+      Get in touch
+    </button>
   </div>
 </section>
-
-<script>
-  const form = document.getElementById("contact-form") as HTMLFormElement | null;
-  const statusEl = document.getElementById("form-status");
-  const successEl = document.getElementById("form-success");
-
-  if (form && statusEl && successEl) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const button = form.querySelector("button[type=submit]") as HTMLButtonElement;
-      const data = Object.fromEntries(new FormData(form).entries());
-
-      // Basic client-side guardrails (server validates too)
-      if (!data.name || !data.email || !data.subject || !data.message) {
-        statusEl.textContent = "Please fill in all fields.";
-        return;
-      }
-
-      button.disabled = true;
-      statusEl.textContent = "Sending…";
-
-      try {
-        const res = await fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error((body as any).error || "Something went wrong.");
-        }
-
-        form.classList.add("hidden");
-        successEl.classList.remove("hidden");
-      } catch (err) {
-        statusEl.textContent =
-          err instanceof Error ? err.message : "Something went wrong. Please try again.";
-        button.disabled = false;
-      }
-    });
-  }
-</script>

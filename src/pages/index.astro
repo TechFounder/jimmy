@@ -6,6 +6,7 @@ import About from "../components/About.astro";
 import Work from "../components/Work.astro";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
+import ContactModal from "../components/ContactModal.astro";
 ---
 
 <Layout>
@@ -17,31 +18,55 @@ import Footer from "../components/Footer.astro";
     <Contact />
   </main>
   <Footer />
+  <ContactModal />
 </Layout>
 
 <script>
   import { gsap } from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import Lenis from "lenis";
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
 
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ---- Smooth scroll (Lenis) ----
   if (!reduce) {
-    gsap.registerPlugin(ScrollTrigger);
+    const lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1 });
+    (window as any).__lenis = lenis;
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
 
-    // Hero: staggered entrance on load.
+    // Anchor links route through Lenis for smooth in-page jumps.
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+      a.addEventListener("click", (e) => {
+        const id = a.getAttribute("href");
+        if (!id || id === "#") return;
+        const target = document.querySelector(id);
+        if (target) {
+          e.preventDefault();
+          lenis.scrollTo(target as HTMLElement, { offset: -10 });
+        }
+      });
+    });
+  }
+
+  // ---- Hero entrance + scroll parallax ----
+  if (!reduce) {
     gsap.from("[data-hero-fade]", {
-      y: 24,
+      y: 28,
       opacity: 0,
       duration: 1,
       ease: "power3.out",
-      stagger: 0.12,
-      delay: 0.1,
+      stagger: 0.1,
+      delay: 0.15,
     });
 
-    // Hero: gentle parallax + fade as you scroll past it.
     gsap.to("[data-hero-parallax]", {
-      yPercent: 18,
-      opacity: 0.35,
+      yPercent: 16,
+      opacity: 0.3,
       ease: "none",
       scrollTrigger: {
         trigger: "#top",
@@ -49,6 +74,106 @@ import Footer from "../components/Footer.astro";
         end: "bottom top",
         scrub: true,
       },
+    });
+  }
+
+  // ---- Pointer parallax (aurora + tagged depth elements) ----
+  if (!reduce && finePointer) {
+    const aurora = document.querySelector<HTMLElement>("[data-aurora]");
+    const depthEls = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-parallax-depth]"),
+    );
+    let px = 0,
+      py = 0;
+    window.addEventListener(
+      "mousemove",
+      (e) => {
+        px = (e.clientX / window.innerWidth - 0.5) * 2;
+        py = (e.clientY / window.innerHeight - 0.5) * 2;
+        if (aurora) {
+          gsap.to(aurora, { x: px * 30, y: py * 30, duration: 0.8, ease: "power2.out" });
+        }
+        depthEls.forEach((el) => {
+          const d = parseFloat(el.dataset.parallaxDepth || "0.3");
+          gsap.to(el, { x: px * 20 * d, y: py * 20 * d, duration: 0.8, ease: "power2.out" });
+        });
+      },
+      { passive: true },
+    );
+  }
+
+  // ---- 3D tilt cards ----
+  if (!reduce && finePointer) {
+    document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
+      const strength = 8;
+      card.addEventListener("mousemove", (e) => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -strength;
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * strength;
+        gsap.to(card, {
+          rotateX: rx,
+          rotateY: ry,
+          transformPerspective: 900,
+          duration: 0.4,
+          ease: "power2.out",
+        });
+      });
+      card.addEventListener("mouseleave", () => {
+        gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: "power3.out" });
+      });
+    });
+  }
+
+  // ---- Custom cursor + magnetic buttons ----
+  if (!reduce && finePointer) {
+    const ring = document.querySelector<HTMLElement>("[data-cursor-ring]");
+    const dot = document.querySelector<HTMLElement>("[data-cursor-dot]");
+
+    if (ring && dot) {
+      document.documentElement.classList.add("has-custom-cursor");
+      let mx = window.innerWidth / 2,
+        my = window.innerHeight / 2;
+      let rx = mx,
+        ry = my;
+
+      window.addEventListener(
+        "mousemove",
+        (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+        },
+        { passive: true },
+      );
+
+      const loop = () => {
+        rx += (mx - rx) * 0.18;
+        ry += (my - ry) * 0.18;
+        ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+        requestAnimationFrame(loop);
+      };
+      requestAnimationFrame(loop);
+
+      // Hover grow over interactive targets
+      document
+        .querySelectorAll('a, button, [data-magnetic], input, textarea')
+        .forEach((el) => {
+          el.addEventListener("mouseenter", () => ring.classList.add("is-hover"));
+          el.addEventListener("mouseleave", () => ring.classList.remove("is-hover"));
+        });
+    }
+
+    // Magnetic pull
+    document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((el) => {
+      el.addEventListener("mousemove", (e) => {
+        const r = el.getBoundingClientRect();
+        const x = e.clientX - (r.left + r.width / 2);
+        const y = e.clientY - (r.top + r.height / 2);
+        gsap.to(el, { x: x * 0.3, y: y * 0.4, duration: 0.4, ease: "power2.out" });
+      });
+      el.addEventListener("mouseleave", () => {
+        gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
+      });
     });
   }
 </script>

@@ -12,7 +12,8 @@
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",
     "astro": "^5.13.0",
-    "gsap": "^3.13.0"
+    "gsap": "^3.13.0",
+    "lenis": "^1.1.20"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",

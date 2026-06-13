@@ -1,0 +1,247 @@
+---
+// Pop-out contact modal. Opened by any [data-open-modal] trigger
+// (nav button, hero CTA, closing CTA band). Posts to /api/contact.
+const inputClass =
+  "w-full rounded-xl border border-hairline bg-[rgba(255,255,255,0.04)] px-4 py-3.5 text-[15px] text-ink outline-none transition-all placeholder:text-ink-soft focus:border-[rgba(56,189,248,0.6)] focus:bg-[rgba(255,255,255,0.06)] focus:ring-2 focus:ring-[rgba(56,189,248,0.25)]";
+---
+
+<div
+  id="contact-modal"
+  class="modal-overlay"
+  data-modal
+  aria-hidden="true"
+>
+  <div class="modal-backdrop" data-modal-close></div>
+
+  <div
+    class="modal-card glass"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <button
+      type="button"
+      class="modal-close"
+      data-modal-close
+      aria-label="Close contact form"
+    >
+      <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="2">
+        <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <div data-modal-body>
+      <h2 id="modal-title" class="text-2xl font-semibold tracking-tight">
+        Get in <span class="gradient-text">touch</span>
+      </h2>
+      <p class="mt-2 text-[15px] text-ink-soft">
+        Tell me a bit about what's on your mind.
+      </p>
+
+      <form id="contact-form" class="mt-6 space-y-4" novalidate>
+        <!-- Honeypot -->
+        <div class="absolute left-[-9999px]" aria-hidden="true">
+          <label>
+            Leave empty
+            <input type="text" name="nickname" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <input type="text" name="name" required placeholder="Full name" autocomplete="name" class={inputClass} />
+          <input type="email" name="email" required placeholder="Email" autocomplete="email" class={inputClass} />
+        </div>
+        <input type="text" name="subject" required placeholder="Subject" class={inputClass} />
+        <textarea name="message" required rows="5" placeholder="Message" class={`${inputClass} resize-y`}></textarea>
+
+        <div class="flex items-center justify-between gap-4 pt-1">
+          <p id="form-status" class="text-sm text-ink-soft" role="status" aria-live="polite"></p>
+          <button
+            type="submit"
+            data-magnetic
+            class="inline-flex items-center justify-center rounded-full px-7 py-3 text-[15px] font-medium text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+            style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-indigo));"
+          >
+            Send message
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div data-modal-success class="hidden py-6 text-center">
+      <div
+        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full text-white"
+        style="background: linear-gradient(135deg, var(--color-accent-sky), var(--color-accent-indigo)); box-shadow: 0 0 30px -4px rgba(56,189,248,0.7);"
+      >
+        <svg viewBox="0 0 24 24" class="h-7 w-7 fill-none stroke-current" stroke-width="2.5">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h3 class="mt-5 text-xl font-semibold">Message sent!</h3>
+      <p class="mt-2 text-ink-soft">Thanks for reaching out — I'll get back to you soon.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s;
+  }
+  .modal-overlay.is-open {
+    visibility: visible;
+    opacity: 1;
+  }
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 4, 10, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8);
+    transform: translateY(24px) scale(0.96);
+    opacity: 0;
+    transition:
+      transform 0.45s cubic-bezier(0.22, 1.4, 0.5, 1),
+      opacity 0.35s ease;
+  }
+  .modal-overlay.is-open .modal-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    height: 2.25rem;
+    width: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: var(--color-ink-soft);
+    transition: color 0.2s, background 0.2s;
+  }
+  .modal-close:hover {
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .modal-overlay,
+    .modal-card {
+      transition: opacity 0.15s ease, visibility 0.15s;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const modal = document.querySelector<HTMLElement>("[data-modal]");
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const statusEl = document.getElementById("form-status");
+  const body = modal?.querySelector<HTMLElement>("[data-modal-body]");
+  const success = modal?.querySelector<HTMLElement>("[data-modal-success]");
+
+  if (modal) {
+    let lastFocused: HTMLElement | null = null;
+
+    const focusable = () =>
+      Array.from(
+        modal.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.offsetParent !== null);
+
+    const open = () => {
+      lastFocused = document.activeElement as HTMLElement;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      (window as any).__lenis?.stop?.();
+      setTimeout(() => focusable()[0]?.focus(), 60);
+    };
+
+    const close = () => {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      (window as any).__lenis?.start?.();
+      lastFocused?.focus();
+    };
+
+    document
+      .querySelectorAll("[data-open-modal]")
+      .forEach((btn) => btn.addEventListener("click", open));
+    modal
+      .querySelectorAll("[data-modal-close]")
+      .forEach((btn) => btn.addEventListener("click", close));
+
+    document.addEventListener("keydown", (e) => {
+      if (!modal.classList.contains("is-open")) return;
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") {
+        const items = focusable();
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // ---- Submit ----
+    if (form && statusEl && body && success) {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const button = form.querySelector("button[type=submit]") as HTMLButtonElement;
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        if (!data.name || !data.email || !data.subject || !data.message) {
+          statusEl.textContent = "Please fill in all fields.";
+          return;
+        }
+
+        button.disabled = true;
+        statusEl.textContent = "Sending…";
+
+        try {
+          const res = await fetch("/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) {
+            const b = await res.json().catch(() => ({}));
+            throw new Error((b as any).error || "Something went wrong.");
+          }
+          body.classList.add("hidden");
+          success.classList.remove("hidden");
+        } catch (err) {
+          statusEl.textContent =
+            err instanceof Error ? err.message : "Something went wrong. Please try again.";
+          button.disabled = false;
+        }
+      });
+    }
+  }
+</script>

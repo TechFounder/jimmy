@@ -1,6 +1,5 @@
 ---
 // Modernized from the original site's bio + tech-stack list.
-// First-draft copy — meant to be reviewed/edited.
 const stack = [
   { group: "Languages", items: ["JavaScript / TypeScript", "Ruby", "HTML & CSS"] },
   { group: "Frameworks", items: ["Ruby on Rails", "React", "Astro", "Tailwind"] },
@@ -10,9 +9,12 @@ const stack = [
 ];
 ---
 
-<section id="about" class="mx-auto max-w-5xl scroll-mt-16 px-5 py-28 sm:px-8 sm:py-40">
+<section
+  id="about"
+  class="mx-auto max-w-5xl scroll-mt-24 px-5 py-28 sm:px-8 sm:py-40"
+>
   <p
-    class="text-sm font-medium uppercase tracking-[0.2em] text-accent"
+    class="text-sm font-medium uppercase tracking-[0.2em] text-accent-sky"
     data-reveal
   >
     About
@@ -41,11 +43,15 @@ const stack = [
   </div>
 
   <!-- Stack -->
-  <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-hairline)] sm:grid-cols-2 lg:grid-cols-3">
+  <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {
-      stack.map((col) => (
-        <div class="bg-[var(--color-canvas)] p-6" data-reveal>
-          <h3 class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
+      stack.map((col, i) => (
+        <div
+          class="glass rounded-2xl p-6 transition-colors duration-300 hover:border-[rgba(56,189,248,0.4)]"
+          data-reveal
+          data-reveal-delay={(i % 3) + 1}
+        >
+          <h3 class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-sky">
             {col.group}
           </h3>
           <ul class="mt-4 space-y-2">

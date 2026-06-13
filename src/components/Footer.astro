@@ -2,11 +2,13 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-[var(--color-hairline)] px-5 py-10 sm:px-8">
+<footer class="border-t border-hairline px-5 py-10 sm:px-8">
   <div
     class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 text-sm text-ink-soft sm:flex-row"
   >
     <p>&copy; {year} Jimmy Chen. Built with Astro &amp; deployed on Cloudflare.</p>
-    <a href="#top" class="transition-colors hover:text-ink">Back to top ↑</a>
+    <a href="#top" data-magnetic class="transition-colors hover:text-ink">
+      Back to top ↑
+    </a>
   </div>
 </footer>
