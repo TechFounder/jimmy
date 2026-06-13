@@ -23,7 +23,7 @@ export const projects: Project[] = [
     title: "RubiconMD",
     year: "2014",
     blurb:
-      "Before joining full time, I was brought on freelance to build RubiconMD's frontend. It's an eConsult platform that lets primary-care providers discuss cases with top specialists in minutes instead of weeks. The company was later acquired by Teladoc Health, where I work today.",
+      "Before joining full time, I was brought on freelance to build RubiconMD's frontend — an eConsult platform that lets primary-care providers get specialist input in minutes instead of weeks. RubiconMD was later acquired by Oak Street Health (now part of CVS Health) for up to $190 million.",
     image: "/images/rubiconmd.png",
     imageAlt: "RubiconMD eConsult platform homepage",
     tags: ["Frontend", "Healthcare", "Rails"],
