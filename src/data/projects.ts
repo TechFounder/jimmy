@@ -23,7 +23,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     title: "RubiconMD",
-    year: "2014",
+    year: "2013 – 17",
     blurb:
       "Before joining full time, I was brought on freelance to build RubiconMD's frontend — an eConsult platform that lets primary-care providers get specialist input in minutes instead of weeks. RubiconMD was later acquired by Oak Street Health (now part of CVS Health) for up to $190 million.",
     image: "/images/rubiconmd.png",

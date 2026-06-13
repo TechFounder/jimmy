@@ -1,0 +1,67 @@
+---
+import { experience } from "../data/experience";
+---
+
+<section
+  id="experience"
+  class="mx-auto max-w-3xl scroll-mt-24 px-5 py-28 sm:px-8 sm:py-36"
+>
+  <p
+    class="text-sm font-medium uppercase tracking-[0.2em] text-accent-sky"
+    data-reveal
+  >
+    Experience
+  </p>
+  <h2
+    class="mt-6 max-w-2xl text-3xl font-semibold leading-[1.15] tracking-[-0.02em] sm:text-5xl"
+    data-reveal
+  >
+    From first engineer to <span class="gradient-text">engineering leader</span>.
+  </h2>
+
+  <ol class="mt-14 space-y-2">
+    {
+      experience.map((role) => (
+        <li
+          class="relative grid grid-cols-[auto_1fr] gap-x-5 pb-8 last:pb-0"
+          data-reveal
+        >
+          {/* Rail + node */}
+          <div class="relative flex w-3 justify-center">
+            <span
+              class="absolute top-1.5 h-3 w-3 rounded-full"
+              style="background: linear-gradient(135deg, var(--color-accent-sky), var(--color-accent-indigo)); box-shadow: 0 0 12px -2px rgba(56,189,248,0.8);"
+            />
+            <span class="mt-5 w-px flex-1 bg-hairline" aria-hidden="true" />
+          </div>
+
+          {/* Content */}
+          <div class="pb-1">
+            <span class="text-xs font-medium uppercase tracking-[0.12em] text-ink-soft">
+              {role.period}
+            </span>
+            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h3 class="text-lg font-semibold tracking-tight">{role.role}</h3>
+              {role.tag && (
+                <span
+                  class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white"
+                  style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-indigo));"
+                >
+                  {role.tag}
+                </span>
+              )}
+            </div>
+            <p class="mt-0.5 text-[15px] font-medium text-accent-sky">
+              {role.company}
+            </p>
+            {role.blurb && (
+              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+                {role.blurb}
+              </p>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
