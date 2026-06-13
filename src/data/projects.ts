@@ -16,6 +16,8 @@ export type Project = {
   repo?: ProjectLink;
   /** Shown when there's no live demo to link to. */
   note?: string;
+  /** Optional highlighted accolade (e.g. an acquisition). */
+  accolade?: string;
 };
 
 export const projects: Project[] = [
@@ -27,6 +29,7 @@ export const projects: Project[] = [
     image: "/images/rubiconmd.png",
     imageAlt: "RubiconMD eConsult platform homepage",
     tags: ["Frontend", "Healthcare", "Rails"],
+    accolade: "$190M acquisition",
     live: { href: "https://rubiconmd.com", label: "Visit site" },
   },
   {
