@@ -3,7 +3,7 @@
 Personal site for Jimmy Chen — a fast, animated, single-page portfolio.
 The modern successor to the old Rails app (`jimmy2`).
 
-**Stack:** [Astro](https://astro.build) · [Tailwind CSS v4](https://tailwindcss.com) · [GSAP](https://gsap.com) + [Lenis](https://lenis.darkroom.engineering) (scroll animation) · [Cloudflare Pages](https://pages.cloudflare.com) (hosting) · [Resend](https://resend.com) (contact email) · [Playwright](https://playwright.dev) (E2E tests) · GitHub Actions (CI).
+**Stack:** [Astro](https://astro.build) · [Tailwind CSS v4](https://tailwindcss.com) · [GSAP](https://gsap.com) + [Lenis](https://lenis.darkroom.engineering) (scroll animation) · [Cloudflare Workers](https://workers.cloudflare.com) (hosting) · [Resend](https://resend.com) (contact email) · [Playwright](https://playwright.dev) (E2E tests) · GitHub Actions (CI).
 
 ## Local development
 
@@ -16,11 +16,11 @@ npm run dev                      # http://localhost:4321
 `npm run dev` runs Astro with the Cloudflare platform proxy, so the
 `/api/contact` endpoint and its env vars work locally.
 
-To exercise the production build the way Cloudflare serves it:
+To exercise the production build the way Cloudflare serves it (builds, then
+runs the Worker locally with `wrangler dev`):
 
 ```bash
-npm run build
-npm run preview                  # wrangler pages dev ./dist
+npm run preview                  # = npm run build && wrangler dev
 ```
 
 ## Testing
@@ -91,20 +91,40 @@ emails the submission through Resend. Configure via these variables:
 | `CONTACT_TO`     | Inbox that receives submissions           |
 | `CONTACT_FROM`   | Verified "from" address                   |
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare Workers
 
-1. Push this repo to GitHub.
-2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages →
-   Connect to Git**, pick the repo.
-3. Build settings:
-   - **Framework preset:** Astro
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-4. **Settings → Environment variables** — add `RESEND_API_KEY`,
-   `CONTACT_TO`, `CONTACT_FROM` (mark the API key as a *secret*).
-5. **Custom domains** — add `jchen.me` and follow the DNS steps.
+The site deploys as a Cloudflare **Worker** (static assets + the on-demand
+`/api/contact` function), configured in [`wrangler.jsonc`](wrangler.jsonc).
 
-Every push to the default branch redeploys automatically.
+### Manual deploy from your machine
+
+```bash
+npm run deploy                   # = npm run build && wrangler deploy
+```
+
+The first run prompts `wrangler` to authenticate with your Cloudflare
+account. Secrets are stored on the Worker, not in the repo — set them once:
+
+```bash
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put CONTACT_TO
+npx wrangler secret put CONTACT_FROM
+```
+
+(Or add them under **Workers & Pages → `jimmy` → Settings → Variables and
+Secrets** in the dashboard.) Regenerate the Cloudflare binding types after
+config changes with `npm run cf-typegen`.
+
+### Continuous deploy from GitHub
+
+To redeploy on every push to `main`, connect the repo under **Workers &
+Pages → Create → Import a repository** (build command `npm run build`), or
+add a deploy step to CI using
+[`cloudflare/wrangler-action`](https://github.com/cloudflare/wrangler-action)
+with a `CLOUDFLARE_API_TOKEN` secret.
+
+**Custom domain:** add `jchen.me` under the Worker's **Settings → Domains &
+Routes** and follow the DNS steps.
 
 ### Resend setup
 
