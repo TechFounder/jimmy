@@ -44,15 +44,29 @@ import ContactModal from "../components/ContactModal.astro";
     gsap.ticker.lagSmoothing(0);
 
     // Anchor links route through Lenis for smooth in-page jumps.
+    const navPill = document.querySelector("[data-nav-pill]");
     document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
       a.addEventListener("click", (e) => {
         const id = a.getAttribute("href");
         if (!id || id === "#") return;
-        const target = document.querySelector(id);
-        if (target) {
-          e.preventDefault();
-          lenis.scrollTo(target as HTMLElement, { offset: -10 });
+        const target = document.querySelector<HTMLElement>(id);
+        if (!target) return;
+        e.preventDefault();
+
+        // The logo jumps to the very top of the page.
+        if (id === "#top") {
+          lenis.scrollTo(0);
+          return;
         }
+
+        // Land the section's content just below the nav pill. Each section
+        // carries large internal top padding (py-28/py-40) for scroll rhythm;
+        // skip past it on jump so the heading isn't buried under blank space.
+        const gap = (navPill?.getBoundingClientRect().bottom ?? 60) + 24;
+        const cs = getComputedStyle(target);
+        const padTop = parseFloat(cs.paddingTop) || 0;
+        const scrollMt = parseFloat(cs.scrollMarginTop) || 0;
+        lenis.scrollTo(target, { offset: padTop + scrollMt - gap });
       });
     });
   }
