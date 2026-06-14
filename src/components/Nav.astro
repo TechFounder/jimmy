@@ -4,41 +4,50 @@ const links = [
   { label: "Work", href: "#work" },
   { label: "Blog", href: "https://blog.jchen.me" },
 ];
+
+// External links open in a new tab; in-page anchors stay put.
+const attrsFor = (href: string) =>
+  href.startsWith("http")
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
 ---
 
 <header
   id="site-nav"
   class="fixed inset-x-0 top-0 z-50 px-5 transition-all duration-300 sm:px-8"
 >
-  <nav
-    class="mx-auto mt-3 flex h-12 max-w-5xl items-center justify-between rounded-2xl border border-transparent px-5 transition-all duration-300 sm:px-6"
-    data-nav-pill
-  >
-    <a
-      href="#top"
-      data-magnetic
-      class="text-[15px] font-semibold tracking-tight text-ink transition-opacity hover:opacity-70"
+  <div class="mx-auto max-w-5xl">
+    <nav
+      class="mt-3 flex h-12 items-center justify-between rounded-2xl border border-transparent px-5 transition-all duration-300 sm:px-6"
+      data-nav-pill
     >
-      Jimmy Chen
-    </a>
+      <a
+        href="#top"
+        data-magnetic
+        class="whitespace-nowrap text-[15px] font-semibold tracking-tight text-ink transition-opacity hover:opacity-70"
+      >
+        Jimmy Chen
+      </a>
 
-    <ul class="flex items-center gap-5 sm:gap-7">
-      {
-        links.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              class="text-[13px] text-ink-soft transition-colors hover:text-ink"
-              {...link.href.startsWith("http")
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {}}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))
-      }
-      <li>
+      <div class="flex items-center gap-3 sm:gap-7">
+        {/* Inline links — desktop only */}
+        <ul class="hidden items-center gap-5 sm:flex sm:gap-7">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-[13px] text-ink-soft transition-colors hover:text-ink"
+                  {...attrsFor(link.href)}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        {/* Contact — always visible */}
         <button
           type="button"
           data-open-modal
@@ -47,10 +56,84 @@ const links = [
         >
           Contact
         </button>
-      </li>
-    </ul>
-  </nav>
+
+        {/* Hamburger — mobile only */}
+        <button
+          type="button"
+          data-menu-toggle
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          aria-label="Open menu"
+          class="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-white/5 sm:hidden"
+        >
+          <span class="relative block h-3 w-5">
+            <span
+              class="bar bar-top absolute inset-x-0 top-0 h-[1.5px] rounded-full bg-current"
+            ></span>
+            <span
+              class="bar bar-bottom absolute inset-x-0 bottom-0 h-[1.5px] rounded-full bg-current"
+            ></span>
+          </span>
+        </button>
+      </div>
+    </nav>
+
+    {/* Mobile dropdown panel */}
+    <div
+      id="mobile-menu"
+      data-menu-panel
+      class="glass ml-auto mt-2 w-52 max-w-[calc(100%-0.5rem)] rounded-2xl p-2 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)] sm:hidden"
+    >
+      <ul class="flex flex-col">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="block rounded-xl px-4 py-3 text-[15px] text-ink-soft transition-colors hover:bg-white/5 hover:text-ink"
+                {...attrsFor(link.href)}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
 </header>
+
+<style>
+  /* Compact dropdown: grows from the top-right, near the hamburger. */
+  [data-menu-panel] {
+    transform-origin: top right;
+    transform: translateY(-4px) scale(0.98);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0.2s;
+  }
+  [data-menu-panel].is-open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Hamburger morphs into an X when open. */
+  [data-menu-toggle] .bar {
+    transition: transform 0.2s ease;
+  }
+  [data-menu-toggle][aria-expanded="true"] .bar-top {
+    transform: translateY(5px) rotate(45deg);
+  }
+  [data-menu-toggle][aria-expanded="true"] .bar-bottom {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+</style>
 
 <script>
   // Frost the nav pill once the user scrolls past the hero fold.
@@ -62,5 +145,43 @@ const links = [
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  // ---- Mobile dropdown menu ----
+  const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const panel = document.querySelector<HTMLElement>("[data-menu-panel]");
+  let open = false;
+
+  const setMenu = (next: boolean) => {
+    if (!toggle || !panel) return;
+    open = next;
+    panel.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  };
+
+  if (toggle && panel) {
+    toggle.addEventListener("click", () => setMenu(!open));
+
+    // Tapping a link closes the menu (in-page jumps are handled elsewhere).
+    panel.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => setMenu(false))
+    );
+
+    // Dismiss on Escape, outside click, scroll, or growing past the breakpoint.
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && open) {
+        setMenu(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener("click", (e) => {
+      const t = e.target as Node;
+      if (open && !panel.contains(t) && !toggle.contains(t)) setMenu(false);
+    });
+    window.addEventListener("scroll", () => open && setMenu(false), { passive: true });
+    window
+      .matchMedia("(min-width: 640px)")
+      .addEventListener("change", (e) => e.matches && open && setMenu(false));
   }
 </script>
