@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // import.meta.env for local `astro dev`.
   const env = (locals as any)?.runtime?.env ?? import.meta.env;
   const RESEND_API_KEY = env.RESEND_API_KEY as string | undefined;
-  const CONTACT_TO = (env.CONTACT_TO as string) || "jccgmail@gmail.com";
+  const CONTACT_TO = env.CONTACT_TO as string | undefined;
   const CONTACT_FROM =
     (env.CONTACT_FROM as string) || "Contact Form <onboarding@resend.dev>";
 
@@ -60,9 +60,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return json({ error: "Message must be between 10 and 1000 characters." }, 422);
   }
 
-  if (!RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not configured.");
-    return json({ error: "Email service is not configured." }, 500);
+  if (!RESEND_API_KEY || !CONTACT_TO) {
+    console.error("Contact form misconfigured: RESEND_API_KEY or CONTACT_TO not set.");
+    return json({ error: "Couldn't send your message. Please try again later." }, 500);
   }
 
   const html = `
