@@ -1,0 +1,5 @@
+# Vulnerability disclosure info for jchen.me — see https://securitytxt.org / RFC 9116
+Contact: https://jchen.me/#contact
+Expires: 2027-06-27T00:00:00Z
+Preferred-Languages: en
+Canonical: https://jchen.me/.well-known/security.txt
