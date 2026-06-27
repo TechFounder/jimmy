@@ -32,6 +32,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const CONTACT_FROM =
     (env.CONTACT_FROM as string) || "Contact Form <onboarding@resend.dev>";
 
+  // Per-IP rate limit (Cloudflare Workers Rate Limiting binding). Best-effort
+  // and location-based, but enough to stop a single source from hammering the
+  // endpoint and burning the Resend quota. The binding only exists in the
+  // Cloudflare runtime, so it's a no-op under plain `astro dev`.
+  const rateLimiter = env.CONTACT_RATE_LIMITER as
+    | { limit: (opts: { key: string }) => Promise<{ success: boolean }> }
+    | undefined;
+  if (rateLimiter) {
+    const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
+    const { success } = await rateLimiter.limit({ key: ip });
+    if (!success) {
+      return json(
+        { error: "Too many requests. Please wait a moment and try again." },
+        429,
+      );
+    }
+  }
+
   let body: ContactPayload;
   try {
     body = (await request.json()) as ContactPayload;
