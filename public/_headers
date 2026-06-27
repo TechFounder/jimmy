@@ -1,0 +1,19 @@
+# Cloudflare Workers static-asset headers (https://developers.cloudflare.com/workers/static-assets/headers/).
+# Applies to static/prerendered responses. HSTS and X-Content-Type-Options:nosniff
+# are set globally in the Cloudflare dashboard (SSL/TLS → Edge Certificates), so
+# they're intentionally not duplicated here.
+
+/*
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Content-hashed build output — the filename changes on every edit, so it's
+# safe to cache forever.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Things you might still tweak (images, og art) — short cache while iterating.
+# Bump to a day or week once the site settles.
+/images/*
+  Cache-Control: public, max-age=300
