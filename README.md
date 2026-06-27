@@ -46,6 +46,10 @@ running), so no separate `npm run dev` is needed.
   close-on-link / Escape / outside-click / resize-up behavior.
 - `anchor-scroll.spec.ts` — clicking a nav link lands the target section
   just below the nav pill (desktop and via the mobile menu).
+- `contact-api.spec.ts` — `/api/contact` validation (400/422), honeypot
+  silent-accept (200), and the per-IP rate limit (429). Hits the API directly
+  (no browser) and only exercises paths that short-circuit before Resend, so
+  no real email is sent.
 
 Assertions key off geometry and structural hooks (`data-*` attributes,
 section ids) rather than copy, so they survive content edits.
@@ -66,6 +70,7 @@ Both surface as required-able status checks (see *Branch protection* below).
 
 ```
 src/
+  assets/projects/ project screenshots (optimized at build via astro:assets)
   components/    Nav, Hero, About, Experience, Work, WaysToWork,
                  Contact, ContactModal, Footer
   data/          projects.ts, experience.ts  ← edit your entries here
@@ -75,21 +80,40 @@ src/
     api/contact.ts   serverless contact endpoint → Resend
   styles/global.css  design tokens + reveal primitives
 tests/           Playwright E2E specs
-public/images/   headshot + project screenshots
+public/images/   headshot (also the og:image)
+public/_headers  security + cache-control response headers
 .github/workflows/ci.yml   build + test on every PR/push to main
 ```
 
 ## Contact form
 
 The form (`src/components/Contact.astro`) POSTs JSON to `/api/contact`
-(`src/pages/api/contact.ts`), which validates, applies a honeypot, and
-emails the submission through Resend. Configure via these variables:
+(`src/pages/api/contact.ts`), which validates, applies a honeypot, rate-limits
+by IP, and emails the submission through Resend. Configure via these variables:
 
-| Variable         | Purpose                                   |
-| ---------------- | ----------------------------------------- |
-| `RESEND_API_KEY` | Resend API key (required)                 |
-| `CONTACT_TO`     | Inbox that receives submissions           |
-| `CONTACT_FROM`   | Verified "from" address                   |
+| Variable         | Purpose                                                                          |
+| ---------------- | -------------------------------------------------------------------------------- |
+| `RESEND_API_KEY` | Resend API key — **required**                                                    |
+| `CONTACT_TO`     | Inbox that receives submissions — **required** (no fallback; the API errors if unset) |
+| `CONTACT_FROM`   | "From" address — optional (defaults to `onboarding@resend.dev`)                  |
+
+## Security & headers
+
+- **Rate limiting:** `/api/contact` is capped at 5 requests/minute per IP via
+  the Cloudflare Workers Rate Limiting binding (`ratelimits` in
+  [`wrangler.jsonc`](wrangler.jsonc)) — the 6th request in the window gets a
+  429. Free on the Workers plan; a no-op under plain `astro dev` but live via
+  the platform proxy and in production. A hidden honeypot field silently drops
+  bot submissions.
+- **Response headers:** [`public/_headers`](public/_headers) sets
+  `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy` on all
+  responses, `immutable` caching for content-hashed `/_astro/*` assets, and a
+  short cache for `/images/*`.
+- **Cloudflare dashboard** (SSL/TLS → Edge Certificates): HSTS,
+  `X-Content-Type-Options: nosniff`, and a minimum TLS version of 1.3 are set
+  there rather than in `_headers`, since they apply globally (including the API
+  response). HSTS starts with a short `max-age` — raise it once HTTPS is
+  confirmed everywhere.
 
 ## Deploy to Cloudflare Workers
 
