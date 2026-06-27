@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { projects } from "../data/projects";
 
 const arrow = "M5 12h14M13 6l6 6-6 6";
@@ -34,10 +35,12 @@ const arrow = "M5 12h14M13 6l6 6-6 6";
               data-reveal
             >
               <div class="tilt-inner overflow-hidden rounded-xl">
-                <img
+                <Image
                   src={project.image}
                   alt={project.imageAlt}
                   loading="lazy"
+                  widths={[480, 800, 1200]}
+                  sizes="(min-width: 1024px) 512px, 100vw"
                   class="aspect-[16/10] w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                 />
               </div>
