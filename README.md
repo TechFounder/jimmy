@@ -70,6 +70,7 @@ Both surface as required-able status checks (see *Branch protection* below).
 
 ```
 src/
+  assets/projects/ project screenshots (optimized at build via astro:assets)
   components/    Nav, Hero, About, Experience, Work, WaysToWork,
                  Contact, ContactModal, Footer
   data/          projects.ts, experience.ts  ← edit your entries here
@@ -79,7 +80,7 @@ src/
     api/contact.ts   serverless contact endpoint → Resend
   styles/global.css  design tokens + reveal primitives
 tests/           Playwright E2E specs
-public/images/   headshot + project screenshots
+public/images/   headshot (also the og:image)
 public/_headers  security + cache-control response headers
 .github/workflows/ci.yml   build + test on every PR/push to main
 ```
