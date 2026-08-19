@@ -141,6 +141,9 @@ const inputClass =
     color: var(--color-ink);
     background: rgba(255, 255, 255, 0.08);
   }
+  #form-status.is-error {
+    color: #f87171;
+  }
   @media (prefers-reduced-motion: reduce) {
     .modal-overlay,
     .modal-card {
@@ -218,10 +221,12 @@ const inputClass =
 
         if (!data.name || !data.email || !data.subject || !data.message) {
           statusEl.textContent = "Please fill in all fields.";
+          statusEl.classList.add("is-error");
           return;
         }
 
         button.disabled = true;
+        statusEl.classList.remove("is-error");
         statusEl.textContent = "Sending…";
 
         try {
@@ -239,6 +244,7 @@ const inputClass =
         } catch (err) {
           statusEl.textContent =
             err instanceof Error ? err.message : "Something went wrong. Please try again.";
+          statusEl.classList.add("is-error");
           button.disabled = false;
         }
       });
