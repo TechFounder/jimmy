@@ -97,6 +97,18 @@ by IP, and emails the submission through Resend. Configure via these variables:
 | `CONTACT_TO`     | Inbox that receives submissions — **required** (no fallback; the API errors if unset) |
 | `CONTACT_FROM`   | "From" address — optional (defaults to `onboarding@resend.dev`)                  |
 
+## SEO & sitemap
+
+- **Sitemap:** [`@astrojs/sitemap`](https://docs.astro.build/en/guides/integrations-guide/sitemap/)
+  generates `sitemap-index.xml` (+ `sitemap-0.xml`) at build time from the
+  `site` URL in [`astro.config.mjs`](astro.config.mjs). It only lists built
+  pages, so the `/api/contact` endpoint is excluded automatically. Generated on
+  build only — not under `astro dev`.
+- **Discovery:** [`public/robots.txt`](public/robots.txt) advertises the sitemap
+  to all crawlers. The live `robots.txt` is Cloudflare-managed, so also submit
+  the sitemap directly in Google Search Console (Sitemaps → `sitemap-index.xml`)
+  for Google-specific status/error reporting.
+
 ## Security & headers
 
 - **Rate limiting:** `/api/contact` is capped at 5 requests/minute per IP via
