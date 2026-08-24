@@ -10,6 +10,12 @@ const {
   title = "Jimmy Chen — Engineering Manager, QA",
   description = "Jimmy Chen is an Engineering Manager for QA at Teladoc Health, with a decade of hands-on full-stack engineering behind him. Portfolio, background, and a way to get in touch.",
 } = Astro.props;
+
+// Self-referencing canonical URL, resolved against the `site` value in
+// astro.config.mjs (https://jchen.me). Tells Google which address is the
+// definitive one so duplicate variants (trailing slash, www, http) don't
+// compete with the real page.
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -27,6 +33,7 @@ const {
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
 
     <!-- Open Graph / social -->
     <meta property="og:type" content="website" />
