@@ -1,4 +1,12 @@
 ---
+import { Image } from "astro:assets";
+// Same 800x800 source as public/images/headshot.jpg, but imported through
+// astro:assets so the build emits a content-hashed WebP at the size it is
+// actually displayed (112 CSS px, plus 2x/3x for retina). The public/ copy
+// stays where it is — the JSON-LD Person schema points at it and crawlers
+// need a stable, un-hashed URL.
+import headshot from "../assets/headshot.jpg";
+
 const socials = [
   {
     label: "LinkedIn",
@@ -29,11 +37,14 @@ const socials = [
       data-hero-fade
       data-parallax-depth="0.4"
     >
-      <img
-        src="/images/headshot.jpg"
+      <Image
+        src={headshot}
         alt="Jimmy Chen"
-        width="112"
-        height="112"
+        width={112}
+        height={112}
+        densities={[1, 2, 3]}
+        loading="eager"
+        fetchpriority="high"
         class="h-28 w-28 rounded-full object-cover"
         style="box-shadow: 0 12px 50px -10px rgba(56,189,248,0.5);"
       />
