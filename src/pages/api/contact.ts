@@ -1,4 +1,9 @@
 import type { APIRoute } from "astro";
+import { turnstileEnabled, verifyTurnstile } from "../../lib/turnstile";
+import { contactDailyMax, countSiteLast24h, recordContactSend, type D1Like } from "../../lib/contact-cap";
+
+// Key for this site's rows in the shared contact-sends database.
+const SITE = "jchen.me";
 
 // On-demand (server) route — runs as a Cloudflare function, not prerendered.
 export const prerender = false;
@@ -9,6 +14,7 @@ type ContactPayload = {
   subject?: string;
   message?: string;
   nickname?: string; // honeypot
+  "cf-turnstile-response"?: unknown; // added to the form by the Turnstile widget
 };
 
 const json = (data: unknown, status = 200) =>
@@ -78,6 +84,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return json({ error: "Message must be between 10 and 1000 characters." }, 422);
   }
 
+  // Turnstile, when fully configured (site key at build time AND secret at
+  // runtime). After validation so junk is refused without a siteverify call.
+  const TURNSTILE_SECRET_KEY = env.TURNSTILE_SECRET_KEY as string | undefined;
+  if (turnstileEnabled(import.meta.env.PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY)) {
+    const outcome = await verifyTurnstile(
+      TURNSTILE_SECRET_KEY!,
+      body["cf-turnstile-response"],
+      request.headers.get("CF-Connecting-IP") ?? undefined,
+    );
+    if (outcome !== "ok") {
+      return json({ error: "Please complete the verification check and try again." }, 403);
+    }
+  }
+
+  // Rolling 24h cap for this site, counted in the shared `contact-sends` D1
+  // database. After the honeypot and validation, so junk never spends a slot;
+  // before the config check and Resend, so nothing is sent past the cap.
+  // Fails open: a D1 error or a missing binding counts as 0.
+  const db = env.DB as D1Like | undefined;
+  const sentToday = await countSiteLast24h(db, SITE);
+  if (sentToday >= contactDailyMax(env)) {
+    console.warn(`Contact refused: ${sentToday} contact emails sent for ${SITE} in 24h.`);
+    return json(
+      { error: "We've reached today's message limit. Please try again tomorrow." },
+      503,
+    );
+  }
+
   if (!RESEND_API_KEY || !CONTACT_TO) {
     console.error("Contact form misconfigured: RESEND_API_KEY or CONTACT_TO not set.");
     return json({ error: "Couldn't send your message. Please try again later." }, 500);
@@ -113,5 +147,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return json({ error: "Couldn't send your message. Please try again." }, 502);
   }
 
+  await recordContactSend(db, SITE);
   return json({ ok: true });
 };

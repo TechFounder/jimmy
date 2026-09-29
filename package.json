@@ -10,7 +10,8 @@
     "astro": "astro",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "test": "playwright test"
+    "test": "playwright test",
+    "db:sends": "wrangler d1 execute contact-sends --remote --command \"SELECT site, COUNT(*) AS sends_24h FROM contact_sends WHERE sent_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day') GROUP BY site ORDER BY site\""
   },
   "dependencies": {
     "@astrojs/cloudflare": "12",

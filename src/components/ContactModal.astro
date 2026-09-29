@@ -1,4 +1,7 @@
 ---
+// Turnstile site key: a BUILD variable (Workers Builds), inlined at build time.
+// Unset => no widget, no script, and the server skips the check.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 // Pop-out contact modal. Opened by any [data-open-modal] trigger
 // (nav button, hero CTA, closing CTA band). Posts to /api/contact.
 const inputClass =
@@ -38,7 +41,12 @@ const inputClass =
         Tell me a bit about what's on your mind.
       </p>
 
-      <form id="contact-form" class="mt-6 space-y-4" novalidate>
+      <form
+        id="contact-form"
+        class="mt-6 space-y-4"
+        novalidate
+        data-turnstile-sitekey={turnstileSiteKey || undefined}
+      >
         <!-- Honeypot -->
         <div class="absolute left-[-9999px]" aria-hidden="true">
           <label>
@@ -53,6 +61,8 @@ const inputClass =
         </div>
         <input type="text" name="subject" required placeholder="Subject" class={inputClass} />
         <textarea name="message" required rows="5" placeholder="Message" class={`${inputClass} resize-y`}></textarea>
+
+        {turnstileSiteKey && <div data-turnstile class="min-h-[65px]"></div>}
 
         <div class="flex items-center justify-between gap-4 pt-1">
           <p id="form-status" class="text-sm text-ink-soft" role="status" aria-live="polite"></p>
@@ -82,6 +92,18 @@ const inputClass =
     </div>
   </div>
 </div>
+
+{
+  turnstileSiteKey && (
+    <script
+      is:inline
+      id="turnstile-api"
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+      async
+      defer
+    ></script>
+  )
+}
 
 <style>
   .modal-overlay {
@@ -160,6 +182,34 @@ const inputClass =
   const body = modal?.querySelector<HTMLElement>("[data-modal-body]");
   const success = modal?.querySelector<HTMLElement>("[data-modal-success]");
 
+  // ---- Turnstile (explicit render) ----
+  // Rendered the first time the modal OPENS, not on page load: the modal is
+  // visibility:hidden until then, and implicit rendering into a hidden
+  // container is unreliable. Rendered once; reset after every submit because
+  // a token is single-use.
+  type TurnstileApi = {
+    render(el: HTMLElement, opts: Record<string, unknown>): string | undefined;
+    reset(widgetId?: string): void;
+  };
+  const siteKey = form?.dataset.turnstileSitekey;
+  const turnstileBox = form?.querySelector<HTMLElement>("[data-turnstile]");
+  let widgetId: string | undefined;
+  const turnstileApi = () => (window as unknown as { turnstile?: TurnstileApi }).turnstile;
+  const renderTurnstile = () => {
+    if (!siteKey || !turnstileBox || widgetId !== undefined) return;
+    const api = turnstileApi();
+    if (!api) {
+      document
+        .getElementById("turnstile-api")
+        ?.addEventListener("load", renderTurnstile, { once: true });
+      return;
+    }
+    widgetId = api.render(turnstileBox, { sitekey: siteKey, theme: "dark" });
+  };
+  const resetTurnstile = () => {
+    if (widgetId !== undefined) turnstileApi()?.reset(widgetId);
+  };
+
   if (modal) {
     let lastFocused: HTMLElement | null = null;
 
@@ -175,6 +225,7 @@ const inputClass =
       modal.classList.add("is-open");
       modal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
+      renderTurnstile();
       (window as any).__lenis?.stop?.();
       setTimeout(() => focusable()[0]?.focus(), 60);
     };
@@ -224,6 +275,11 @@ const inputClass =
           statusEl.classList.add("is-error");
           return;
         }
+        if (siteKey && !data["cf-turnstile-response"]) {
+          statusEl.textContent = "Please complete the verification check.";
+          statusEl.classList.add("is-error");
+          return;
+        }
 
         button.disabled = true;
         statusEl.classList.remove("is-error");
@@ -246,6 +302,9 @@ const inputClass =
             err instanceof Error ? err.message : "Something went wrong. Please try again.";
           statusEl.classList.add("is-error");
           button.disabled = false;
+        } finally {
+          // Single-use token: always fetch a fresh one for the next attempt.
+          resetTurnstile();
         }
       });
     }

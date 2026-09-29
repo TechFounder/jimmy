@@ -5,6 +5,8 @@ const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./tests",
+  // Creates the local contact_sends table (shared D1 contact-sends).
+  globalSetup: "./tests/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
