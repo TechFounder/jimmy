@@ -143,6 +143,9 @@ test.describe("opt-in: dev server started with the test keys", () => {
 
     await page.fill('input[name="name"]', "T");
     await page.fill('input[name="email"]', "t@example.com");
+    // Some sites prefill the subject and some don't; fill it so the modal's
+    // own "all fields" check never short-circuits the submit.
+    await page.fill('input[name="subject"]', "Test");
     await page.fill('textarea[name="message"]', "A message long enough.");
     await page.click('#contact-form button[type="submit"]');
     await expect.poll(calls).toEqual(["render", "reset:w1"]);
