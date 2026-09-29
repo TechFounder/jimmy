@@ -10,6 +10,8 @@
     "global_fetch_strictly_public",
     "nodejs_compat"
   ],
+  // Keep variables set in the dashboard across deploys.
+  "keep_vars": true,
   "assets": {
     "binding": "ASSETS",
     "directory": "dist"
@@ -22,6 +24,15 @@
       "name": "CONTACT_RATE_LIMITER",
       "namespace_id": "1001",
       "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+  // Shared rolling-24h contact cap (src/lib/contact-cap.ts). The noordinary
+  // repo owns this database's migrations; this repo only binds it.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "contact-sends",
+      "database_id": "0597cc19-fdc3-45c5-a03c-0baa041eadb0"
     }
   ]
 }

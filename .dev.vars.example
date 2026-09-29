@@ -12,3 +12,12 @@ CONTACT_TO=example@gmail.com
 # the shared onboarding sender below (deliverability is limited).
 # Once jchen.me is verified, switch to e.g. "Jimmy Chen <hello@jchen.me>".
 CONTACT_FROM=Contact Form <onboarding@resend.dev>
+
+# Optional: rolling-24h cap on contact emails for this site (default 10).
+# Leave unset when running the tests -- tests/contact-cap.spec.ts assumes 10.
+# CONTACT_DAILY_MAX=10
+
+# Optional: Turnstile secret. Enforced only when PUBLIC_TURNSTILE_SITE_KEY is
+# also set (a BUILD variable, not read from this file). Cloudflare's public
+# always-pass test secret, for local testing:
+# TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
